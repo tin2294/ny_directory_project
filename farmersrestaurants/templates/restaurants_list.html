@@ -1,0 +1,158 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NY Restaurants</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'farmersrestaurants/styles.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .container {
+            padding: 24px;
+        }
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+        .max-width-custom {
+            max-width: 1600px;
+        }
+        .clickable-row:hover {
+            background-color: rgba(0, 0, 177, 0.302);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container max-width-custom">
+        <div class="d-flex justify-content-end">
+            <a class="m-2" href="{% url 'index' %}"><button type="button" class="btn btn-outline-info">Main Page</button></a>
+        </div>
+        <h1 class="text-center my-3 font-weight-bold">List of Restaurants</h1>
+        <div class="row my-3">
+            <div class="col-md-9 input-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search by name..." aria-label="Search by name">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" onclick="searchByName()">Search</button>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-control" id="boroughFilter" onchange="filterByBorough()">
+                    <option value="">All Boroughs</option>
+                    <option value="Manhattan">Manhattan</option>
+                    <option value="Brooklyn">Brooklyn</option>
+                    <option value="Queens">Queens</option>
+                    <option value="Bronx">Bronx</option>
+                </select>
+            </div>
+        </div>
+        <div class="restaurant-list">
+            <table class="table">
+                <thead>
+                    <tr class="text-center">
+                        <th>Name</th>
+                        <th>Borough</th>
+                        <th>Street</th>
+                        <th>Building</th>
+                        <th>Cuisine</th>
+                        <th>Inspection Flag</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for restaurant in page_obj %}
+                        <tr class="clickable-row text-center" onclick="window.location.href=`{% url 'restaurant_details' restaurant.camis %}`;" >
+                            <td>{{ restaurant.dba }}</a></td>
+                            <td>{{ restaurant.boro }}</td>
+                            <td>{{ restaurant.street }}</td>
+                            <td>{{ restaurant.building }}</td>
+                            <td>{% if restaurant.cuisine_description %}{{ restaurant.cuisine_description }}{% endif %}</td>
+                            <td>
+                                {% if restaurant.critical_flag %}
+                                    {% if restaurant.critical_flag == 'Critical' %}
+                                        <i class="fas fa-flag red-flag" data-toggle="tooltip" data-placement="top" title="Critical"></i>
+                                    {% elif restaurant.critical_flag == 'Not Critical' %}
+                                        <i class="fas fa-flag green-flag" data-toggle="tooltip" data-placement="top" title="Not Critical"></i>
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6">No restaurants available.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-center pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a class="mx-0.5" href="?page=1">&laquo; First</a>
+                    <a class="mx-0.5" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a class="mx-0.5" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    <a class="mx-0.5" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+    <script>
+        function searchByName() {
+            const input = document.getElementById('searchInput').value.toUpperCase();
+            const rows = document.querySelectorAll('.clickable-row');
+            
+            rows.forEach(row => {
+                const name = row.getElementsByTagName('td')[0];
+                if (name) {
+                    const txtValue = name.textContent || name.innerText;
+                    if (txtValue.toUpperCase().indexOf(input) > -1) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            });
+        }
+        function filterByBorough() {
+            const select = document.getElementById('boroughFilter');
+            const selectedBorough = select.value.toUpperCase();
+            const rows = document.querySelectorAll('.clickable-row');
+
+            rows.forEach(row => {
+                const boroughCell = row.getElementsByTagName('td')[1];
+                if (boroughCell) {
+                    const txtValue = boroughCell.textContent || boroughCell.innerText;
+                    if (selectedBorough === '' || txtValue.toUpperCase() === selectedBorough) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            });
+        }
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js">
+        const rows = document.querySelectorAll('.clickable-row');
+        rows.forEach(row => {
+            row.addEventListener('click', () => {
+                const url = row.getAttribute('data-href');
+                if (url) {
+                    window.location.href = url;
+                }
+            });
+        });
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        });
+    </script>
+</body>
+</html>

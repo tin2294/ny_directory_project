@@ -1,0 +1,101 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Restaurant Details</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'farmersrestaurants/styles.css' %}">
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD1yocv-EHV2Sx-5UeBUv6dzpm1NnZgdgU&callback=console.debug&libraries=maps,marker&v=beta">
+    </script>
+    <style>
+        gmp-map {
+        height: 100%;
+        }
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+        .container {
+            width: 100%,
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="row justify-content-between p-4 mx-3">
+        {% if restaurant.dba %}
+            <h1>{{ restaurant.dba }}</h1>
+        {% else %}
+            <h1>Restaurant Details</h1>
+        {% endif %}
+        <div class="row">
+            <a href="{% url 'index' %}"><button type="button" class="btn btn-outline-info">Main Page</button></a>
+            <button onclick="goBack()" class="btn btn-outline-info ml-1" >Go Back</button>
+        </div>
+    </div>
+    <div class="container row mx-2 justify-content-center">
+        <div class="col-md-4 table-container">
+            <table>
+                <tr>
+                    <td>CAMIS</td>
+                    <td>{{ restaurant.camis }}</td>
+                </tr>
+                <tr>
+                    <td>Borough</td>
+                    <td>{{ restaurant.boro }}</td>
+                </tr>
+                <tr>
+                    <td>Street</td>
+                    <td>{{ restaurant.street }}</td>
+                </tr>
+                <tr>
+                    <td>Zipcode</td>
+                    <td>{{ restaurant.zipcode }}</td>
+                </tr>
+                <tr>
+                    <td>Phone</td>
+                    <td>{{ restaurant.phone }}</td>
+                </tr>
+                <tr>
+                    <td>Cuisine Description</td>
+                    <td>{{ restaurant.cuisine_description }}</td>
+                </tr>
+                <tr>
+                    <td>Inspection Date</td>
+                    <td>{{ restaurant.inspection_date }}</td>
+                </tr>
+                <tr>
+                    <td>Violation Description</td>
+                    <td>{{ restaurant.violation_description }}</td>
+                </tr>
+                <tr>
+                    <td>Score</td>
+                    <td>{{ restaurant.score }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-md-8 map-container">
+            <gmp-map center="40.719539642333984,-73.99567413330078" zoom="12" map-id="DEMO_MAP_ID">
+                <gmp-advanced-marker position="{{ restaurant.latitude }},{{ restaurant.longitude }}" title="{{ restaurant.dba }}" data-identifier="{{ unique_id }}">
+                </gmp-advanced-marker>
+            </gmp-map>
+        </div>
+    </div>
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+</html>

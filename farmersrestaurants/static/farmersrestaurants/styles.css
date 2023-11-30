@@ -1,0 +1,28 @@
+body {
+    font-family: 'Montserrat', sans-serif;
+}
+
+.red-flag {
+    color: red;
+    font-weight: bold; /* Make the text bold */
+    /* Add any other styles for red flag */
+}
+
+.green-flag {
+    color: green;
+    font-weight: bold; /* Make the text bold */
+    /* Add any other styles for green flag */
+}
+
+/* Additional styles for other elements */
+/* For example: */
+/* Style headers */
+h1 {
+    color: #333; /* Change text color */
+    font-size: 24px; /* Adjust font size */
+}
+
+/* Style paragraphs */
+p {
+    line-height: 1.5; /* Adjust line height */
+}

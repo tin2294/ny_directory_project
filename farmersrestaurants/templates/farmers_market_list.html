@@ -1,0 +1,139 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>List of Farmer's Markets</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD1yocv-EHV2Sx-5UeBUv6dzpm1NnZgdgU&callback=console.debug&libraries=maps,marker&v=beta">
+    </script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'farmersrestaurants/styles.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        gmp-map {
+        height: 100%;
+        }
+        .container {
+            padding: 24px;
+        }
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        main {
+            display: flex;
+            flex: 1;
+            overflow-y: auto;
+            width: 100%;
+        }
+        .table-container,
+        .map-container {
+            flex: 1;
+            height: 100%;
+            overflow-y: auto;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <div class="row justify-content-between p-4 mx-3">
+        <h1 class="text-center">Farmer's Markets</h1>
+        <div class="row">
+            <div class="form-group mb-0">
+                <select class="form-control" id="boroughFilter" onchange="filterByBorough()">
+                    <option value="">All Boroughs</option>
+                    <option value="Manhattan">Manhattan</option>
+                    <option value="Brooklyn">Brooklyn</option>
+                    <option value="Queens">Queens</option>
+                    <option value="Bronx">Bronx</option>
+                </select>
+            </div>
+            <a href="{% url 'index' %}"><button type="button" class="ml-2 btn btn-outline-info">Main Page</button></a>
+        </div>
+    </div>
+    <main class="flex-grow-1 d-flex justify-content-center">
+        <div class="row">
+            <div class=" map-container col-md-6 p-0">
+                <gmp-map center="40.719539642333984,-73.99567413330078" zoom="12" map-id="fm-list">
+                    {% for fm in page_obj %}
+                        <gmp-advanced-marker position="{{ fm.latitude }},{{ fm.longitude }}" title="{{ fm.name }}">
+                        </gmp-advanced-marker>
+                    {% endfor %}
+                </gmp-map>
+            </div>
+            <div class="table-container col-md-6 p-0">
+                <div class="fm-list">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr class="text-center">
+                                <th>Name</th>
+                                <th>Address</th>
+                                <th>Borough</th>
+                                <th>Season Dates</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for fm in page_obj %}
+                                <tr class="clickable-row text-center">
+                                    <td>{{ fm.marketname }}</td>
+                                    <td>{{ fm.streetaddress }}</td>
+                                    <td>{{ fm.borough }}</td>
+                                    <td>{{ fm.seasondates }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6">No markets available.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="d-flex justify-content-center pagination mb-2">
+                    <span class="step-links">
+                        {% if page_obj.has_previous %}
+                            <a class="mx-0.5" href="?page=1">&laquo; First</a>
+                            <a class="mx-0.5" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                        {% endif %}
+        
+                        <span class="current">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+        
+                        {% if page_obj.has_next %}
+                            <a class="mx-0.5" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            <a class="mx-0.5" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>
+        function filterByBorough() {
+            const select = document.getElementById('boroughFilter');
+            const selectedBorough = select.value.toUpperCase();
+            const rows = document.querySelectorAll('.clickable-row');
+
+            rows.forEach(row => {
+                const boroughCell = row.getElementsByTagName('td')[2];
+                if (boroughCell) {
+                    const txtValue = boroughCell.textContent || boroughCell.innerText;
+                    if (selectedBorough === '' || txtValue.toUpperCase() === selectedBorough) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
